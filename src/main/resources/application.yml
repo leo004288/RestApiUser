@@ -5,6 +5,15 @@ spring:
   application:
     name: PrjAjaxCRUD-restapi-boot4-jpa-oracle
 
+# HTML, style 새로고침
+  web:
+    resources:
+      static-location:
+        - file:src/main/resourse/static/
+        - classpath:/static/
+      cache:
+        period: 0
+
   datasource:
     driver-class-name: oracle.jdbc.OracleDriver
     url: jdbc:oracle:thin:@localhost:11521/FREEPDB1

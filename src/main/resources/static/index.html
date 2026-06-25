@@ -7,8 +7,11 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
     <style>
         main {
-            width: 80%;
-            margin: 30px auto;
+            width: 90%;
+            margin: 20px auto;
+        }
+        h2 {
+            margin-bottom: 20px;
         }
         table, th, tr {
             border-collapse: collapse;
@@ -17,6 +20,9 @@
         th, td {
             padding: 10px;
             text-align: center;
+        }
+        tr:nth-of-type(6) td {
+            border-bottom: none;
         }
         #div1 {
             margin-top: 30px;
@@ -48,7 +54,7 @@
 <main>
     <h2>회원 REST API 테스트</h2>
     <form id="form1">
-        <table>
+        <table class="form-table">
             <tr>
                 <td>아이디</td>
                 <td><input type="text" id="userid" required></td>
@@ -82,7 +88,7 @@
     <div id="message" class="message"></div>
     <hr>
     <div>
-        아이디<input type="text" id="text" placeholder="검색어">
+        아이디 <input type="text" id="text" placeholder="검색어">
         <button id="btnOk" class="btn btn_info btn-info">검색</button>
     </div>
     <div id="div1"></div>
@@ -90,6 +96,60 @@
 <!-- -------------------------------------------------------------------------------------------- -->
 <script>
     const API_URL = '/api/users';  // 기본 API 주소
+
+    // header 문자열
+    function table_header() {
+        return `
+            <tr>
+                <th>아이디</th>
+                <th>이름</th>
+                <th>이메일</th>
+                <th>가입일</th>
+                <th>삭제</th>
+            </tr>
+        `
+    }
+
+    // 조회한 datalist 출력
+    function datalist_display(datalist) {
+        let html  = '<table id="list" class="table table-striped">'
+            html += table_header()
+
+            datalist.forEach(user => {
+                const userid   = user.userid
+                const username = user.username
+                const email    = user.email
+                const indate   = user.indate
+
+                let tr = `
+                    <tr>
+                        <td>${userid}</td>
+                        <td>${username}</td>
+                        <td>${email}</td>
+                        <td>${indate}</td>
+                        <td><button type="button" class="btndel">🗑</button></td>
+                    </tr>
+                `
+            })
+
+            html += '</table>'
+
+        const div1El = document.getElementById('div1')
+        div1El.innerHTML = html
+    }
+
+    // data 조회
+    // GET http://localhost:8080/api/users?keyword=user
+    async function getUsers() {
+        const keywordEl = document.getElementById('text')
+        const keyword   = keywordEl.value.trim()
+        const url       = (keyword)
+            ? `${API_URL}?keyword=${encodeURIComponent(keyword)}`
+            : API_URL
+        const datalist  = await requestJson(url)
+        datalist_display(datalist)
+    }
+
 </script>
 </body>
 </html>
