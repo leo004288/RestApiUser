@@ -130,6 +130,7 @@
                         <td><button type="button" class="btndel">🗑</button></td>
                     </tr>
                 `
+                html += tr
             })
 
             html += '</table>'
@@ -150,6 +151,43 @@
         datalist_display(datalist)
     }
 
+    // requestJson
+    async function requestJson(url, options = {}) {
+        const response = await fetch(url, options)
+        const text     = await response.json()
+        let   data     = null
+        // 조회한 결과가 있다면
+        if (text) {
+            try {
+                data = JSON.parse(text)  // text(JSON 문자열) -> Javascript 객체 변환
+            } catch (err) {
+                data = text
+            }
+        }
+
+        // 조회 status 200 아닐떄
+        if (!response.ok) {
+            throw new Error(response.error)
+        }
+
+        return data
+
+    }
+
+    // window.onload()
+    window.onload = function() {
+        // 검색버튼을 클릭했을때
+        const btnOkEl = document.getElementById('btnOk')
+        btnOkEl.onclick = async function() {
+            try {
+                await getUsers()
+            } catch (err) {
+                console.log(err)
+                alert(err)
+            }
+        }
+        btnOkEl.click()
+    }
 </script>
 </body>
 </html>
