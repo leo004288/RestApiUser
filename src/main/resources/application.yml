@@ -8,8 +8,8 @@ spring:
 # HTML, style 새로고침
   web:
     resources:
-      static-location:
-        - file:src/main/resourse/static/
+      static-locations:
+        - file:src/main/resource/static/
         - classpath:/static/
       cache:
         period: 0

@@ -95,8 +95,9 @@
 </main>
 <!-- -------------------------------------------------------------------------------------------- -->
 <script>
-    const API_URL = '/api/users';  // 기본 API 주소
+    const API_URL = 'http://localhost:8080/api/users';  // 기본 API 주소
 
+    // #div1 table ui 시작 ----------------------------------------------------------
     // header 문자열
     function table_header() {
         return `
@@ -139,6 +140,24 @@
         div1El.innerHTML = html
     }
 
+    function text_clear() {
+        const useridEl   = document.getElementById('userid')
+        const passwdEl   = document.getElementById('passwd')
+        const usernameEl = document.getElementById('username')
+        const emailEl    = document.getElementById('email')
+        const indateEl   = document.getElementById('indate')
+
+        useridEl.value   = ''
+        passwdEl.value   = ''
+        usernameEl.value = ''
+        emailEl.value    = ''
+        indateEl.value   = ''
+
+        useridEl.focus()
+    }
+
+    // #div1 table ui 끝 --------------------------------------------------------------
+
     // data 조회
     // GET http://localhost:8080/api/users?keyword=user
     async function getUsers() {
@@ -151,10 +170,10 @@
         datalist_display(datalist)
     }
 
-    // requestJson
+    // requestJson()
     async function requestJson(url, options = {}) {
         const response = await fetch(url, options)
-        const text     = await response.json()
+        const text     = await response.json()  // "결과문자열" -> js 객체 JSON.parse()
         let   data     = null
         // 조회한 결과가 있다면
         if (text) {
@@ -169,12 +188,10 @@
         if (!response.ok) {
             throw new Error(response.error)
         }
-
         return data
-
     }
 
-    // window.onload()
+    // window.onload() 프로그램 시작
     window.onload = function() {
         // 검색버튼을 클릭했을때
         const btnOkEl = document.getElementById('btnOk')
@@ -187,6 +204,37 @@
             }
         }
         btnOkEl.click()
+
+        // div1 table의 row 를 더블클릭 했을때 input 요소에 값 전달하기
+        const div1El = document.querySelector('#div1')
+        div1El.addEventListener('click', async function(event) {
+            alert(event)
+        })
+
+        // 추가버튼 클릭
+        const btnInsertEl = document.getElementById('btnInsert')
+        btnInsertEl.addEventListener('click', async function() {
+            alert('추가')
+        })
+
+        // 수정버튼 클릭
+        const btnUpdateEl = document.getElementById('btnUpdate')
+        btnUpdateEl.addEventListener('click', async function() {
+            alert('수정')
+        })
+
+        // 삭제버튼 클릭
+        const btnDeleteEl = document.getElementById('btnDelete')
+        btnDeleteEl.addEventListener('click', async function() {
+            alert('삭제')
+        })
+
+        // clear 버튼 클릭
+        const btnClearEl = document.getElementById('btnClear')
+        btnClearEl.addEventListener('click', async function() {
+            text_clear()
+        })
+
     }
 </script>
 </body>

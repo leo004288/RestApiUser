@@ -2,14 +2,12 @@ package com.example.restapiuser.controller;
 
 import com.example.restapiuser.dto.UserResponse;
 import com.example.restapiuser.service.UserService;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController  // @Controller + ResponseBody
+@CrossOrigin(origins = "http://localhost:63342") // 8080 접근허용
 @RequestMapping("/api/users")
 public class UserRestController {
 
