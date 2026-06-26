@@ -156,6 +156,24 @@
         useridEl.focus()
     }
 
+    async function data_insert() {
+        const options = {
+            method: 'POST',
+            body: JSON.stringify({
+                userid: 'foo',
+                passwd: 'bar',
+                username: '',
+                email: ''
+        }),
+        headers: {
+            'Content-type': 'application/json; charset=UTF-8',
+        }
+    }
+    await requestJson(API_URL, options)
+    text_clear()
+    await loadusers()
+    }
+
     // #div1 table ui 끝 --------------------------------------------------------------
 
     // data 조회
@@ -206,15 +224,46 @@
         btnOkEl.click()
 
         // div1 table의 row 를 더블클릭 했을때 input 요소에 값 전달하기
+        // const div1El = document.querySelector('#div1 tr:hover')
+        // click -> 동적으로 생성된 element(tag)는 해당 선택자로 찾지못한다 : 부모역할에 이벤트 걸어줌
         const div1El = document.querySelector('#div1')
         div1El.addEventListener('click', async function(event) {
-            alert(event)
+            //let tds = event.target.parentElement.children
+            let tds = event.target.closest('tr')
+
+            const useridEl   = document.getElementById('userid')
+            const passwdEl   = document.getElementById('passwd')
+            const usernameEl = document.getElementById('username')
+            const emailEl    = document.getElementById('email')
+            const indateEl   = document.getElementById('indate')
+
+            // foreach는 출력안됨 -> Array.from()
+            Array.from(tds).forEach( (td, i) => {
+                if(td.tagName != "TD") return
+                console.log(td)
+                switch (i) {
+                    case 0: useridEl.value   = td.innerHTML; break;
+                    case 1: usernameEl.value = td.innerHTML; break;
+                    case 2: emailEl.value    = td.innerHTML; break;
+                    case 3: indateEl.value   = td.innerHTML; break;
+
+                    //case 1: passwdEl.value   = td.innerHTML; break;
+                }
+            })
+
         })
 
-        // 추가버튼 클릭
+        // 추가버튼 클릭 : a tag를 버튼으로 사용하려면 기본ㄹ]]]ㅣ
         const btnInsertEl = document.getElementById('btnInsert')
-        btnInsertEl.addEventListener('click', async function() {
-            alert('추가')
+        btnInsertEl.addEventListener('click', async function(event) {
+            event.preventDefault()
+            event.stopPropagation()
+            try {
+                await data_insert
+            } catch (err) {
+                console.log(err)
+                alert("오류발생")
+            }
         })
 
         // 수정버튼 클릭
