@@ -140,6 +140,7 @@
         div1El.innerHTML = html
     }
 
+    //
     function text_clear() {
         const useridEl   = document.getElementById('userid')
         const passwdEl   = document.getElementById('passwd')
@@ -156,14 +157,15 @@
         useridEl.focus()
     }
 
+    //
     async function data_insert() {
         const options = {
             method: 'POST',
             body: JSON.stringify({
-                userid: 'foo',
-                passwd: 'bar',
-                username: '',
-                email: ''
+                userid: useridvalue,
+                passwd: passwdval,
+                username: usernameval,
+                email: email
         }),
         headers: {
             'Content-type': 'application/json; charset=UTF-8',
@@ -171,7 +173,7 @@
     }
     await requestJson(API_URL, options)
     text_clear()
-    await loadusers()
+    await getUsers()
     }
 
     // #div1 table ui 끝 --------------------------------------------------------------
@@ -229,7 +231,7 @@
         const div1El = document.querySelector('#div1')
         div1El.addEventListener('click', async function(event) {
             //let tds = event.target.parentElement.children
-            let tds = event.target.closest('tr')
+            let tds = event.target.closest('tr').children
 
             const useridEl   = document.getElementById('userid')
             const passwdEl   = document.getElementById('passwd')
@@ -239,7 +241,7 @@
 
             // foreach는 출력안됨 -> Array.from()
             Array.from(tds).forEach( (td, i) => {
-                if(td.tagName != "TD") return
+                if(td.tagName !== "TD") return
                 console.log(td)
                 switch (i) {
                     case 0: useridEl.value   = td.innerHTML; break;
@@ -259,7 +261,7 @@
             event.preventDefault()
             event.stopPropagation()
             try {
-                await data_insert
+                await data_insert()
             } catch (err) {
                 console.log(err)
                 alert("오류발생")
