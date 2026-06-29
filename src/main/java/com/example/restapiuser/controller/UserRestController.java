@@ -3,6 +3,7 @@ package com.example.restapiuser.controller;
 import com.example.restapiuser.dto.DeleteResponse;
 import com.example.restapiuser.dto.UserCreateRequest;
 import com.example.restapiuser.dto.UserResponse;
+import com.example.restapiuser.dto.UserUpdateRequest;
 import com.example.restapiuser.service.UserService;
 import jakarta.validation.Valid;
 import org.jspecify.annotations.Nullable;
@@ -17,7 +18,7 @@ import java.util.List;
 @RestController  // @Controller + ResponseBody
 @CrossOrigin(
         origins = "http://localhost:63342",
-        methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE, RequestMethod.OPTIONS}
+        methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PATCH, RequestMethod.DELETE, RequestMethod.OPTIONS}
 ) // 8080 접근허용
 @RequestMapping("/api/users")
 public class UserRestController {
@@ -61,4 +62,11 @@ public class UserRestController {
         return new DeleteResponse(userid, true);
     }
 
+    // PATCH http://localhost:8080/api/users/test01 - 회원수정
+    @PatchMapping("/{userid}")
+    public UserResponse update(
+            @PathVariable("userid") String userid,
+            @Valid @RequestBody UserUpdateRequest request) {
+        return userService.updateuser(userid, request);
+    }
 }

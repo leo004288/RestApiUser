@@ -4,6 +4,7 @@ import com.example.restapiuser.ApiException.ApiException;
 import com.example.restapiuser.Entity.UserEntity;
 import com.example.restapiuser.dto.UserCreateRequest;
 import com.example.restapiuser.dto.UserResponse;
+import com.example.restapiuser.dto.UserUpdateRequest;
 import com.example.restapiuser.repository.UserRepository;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -65,4 +66,17 @@ public class UserService {
         return userRepository.findById(userid)
                 .orElseThrow( () -> new ApiException(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다" + userid));
     }
+
+    // 회원정보수정
+    @Transactional
+    public UserResponse updateuser(String userid, @Valid UserUpdateRequest request) {
+        UserEntity user = getUserEntity(userid);
+        if (request.passwd() != null && !request.passwd().isBlank() ) {
+            user.setPasswd(request.passwd());
+        }
+        user.setUsername(request.username());
+        user.setEmail(request.email());
+        return UserResponse.from(userRepository.save(user));
+    }
+
 }

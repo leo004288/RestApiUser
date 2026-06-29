@@ -141,6 +141,19 @@
     }
     // #div1 table ui 끝 --------------------------------------------------------------
 
+    // data 조작 ----------------------------------------------------------------------
+    // data 조회
+    // GET http://localhost:8080/api/users?keyword=user
+    async function getUsers() {
+        const keywordEl = document.getElementById('text')
+        const keyword   = keywordEl.value.trim()
+        const url       = (keyword)
+            ? `${API_URL}?keyword=${encodeURIComponent(keyword)}`
+            : API_URL
+        const datalist  = await requestJson(url)
+        datalist_display(datalist)
+    }
+
     // text_clear
     function text_clear() {
         const useridEl   = document.getElementById('userid')
@@ -160,21 +173,42 @@
 
     // data_insert
     async function data_insert() {
+        // 입력체크
+        const body = fromToUser()
+        validateInputForm(body)
+
         const options = {
             method: 'POST',
-            body: JSON.stringify({
-                userid: useridvalue,
-                passwd: passwdval,
-                username: usernameval,
-                email: email
-        }),
+            body: JSON.stringify( fromToUser() ),
         headers: {
             'Content-type': 'application/json; charset=UTF-8',
         }
     }
     await requestJson(API_URL, options)
     text_clear()
+    setMessage("추가되었습니다. 전체 목록을 다시 조회했습니다", "success")
     await getUsers()  // data전체 조회
+    }
+
+    // data_update
+    async function data_update() {
+        // 입력체크
+        const userid = document.getElementById('userid').value
+        const body = fromToUser()
+        validateUpdateForm(userid, body)
+        delete body.userid  // 객체에서 property 한개를 제거
+
+        const options = {
+            method: 'PATCH',
+            body: JSON.stringify( fromToUser() ),
+            headers: {
+                'Content-type': 'application/json; charset=UTF-8',
+            }
+        }
+        await requestJson(`${API_URL}/${userid}`, options )
+        text_clear()
+        setMessage("수정되었습니다. 전체 목록을 다시 조회했습니다", "success")
+        await getUsers()
     }
 
     // data_delete
@@ -183,19 +217,8 @@
             method: 'DELETE'
         })
         text_clear()
+        setMessage("삭제되었습니다. 전체 목록을 다시 조회했습니다", "success")
         await getUsers()
-    }
-
-    // data 조회
-    // GET http://localhost:8080/api/users?keyword=user
-    async function getUsers() {
-        const keywordEl = document.getElementById('text')
-        const keyword   = keywordEl.value.trim()
-        const url       = (keyword)
-            ? `${API_URL}?keyword=${encodeURIComponent(keyword)}`
-            : API_URL
-        const datalist  = await requestJson(url)
-        datalist_display(datalist)
     }
 
     // requestJson()
@@ -218,12 +241,13 @@
         }
         return data
     }
+    // data 조작 끝 --------------------------------------------------------------------------
 
-    // window.onload() 프로그램 시작
+    // window.onload() 프로그램 시작 ---------------------------------------------------------
     window.onload = function() {
         // 검색버튼을 클릭했을때
         const btnOkEl = document.getElementById('btnOk')
-        btnOkEl.onclick = async function() {
+        btnOkEl.onclick = async function () {
             try {
                 await getUsers()
             } catch (err) {
@@ -237,90 +261,109 @@
         // const div1El = document.querySelector('#div1 tr:hover')
         // click -> 동적으로 생성된 element(tag)는 해당 선택자로 찾지못한다 : 부모역할에 이벤트 걸어줌
         const div1El = document.querySelector('#div1')
-        div1El.addEventListener('click', async function(event) {
+        div1El.addEventListener('click', async function (event) {
             //let tds = event.target.parentElement.children
             let tds = event.target.closest('tr').children
 
-            const useridEl   = document.getElementById('userid')
-            const passwdEl   = document.getElementById('passwd')
+            const useridEl = document.getElementById('userid')
+            const passwdEl = document.getElementById('passwd')
             const usernameEl = document.getElementById('username')
-            const emailEl    = document.getElementById('email')
-            const indateEl   = document.getElementById('indate')
+            const emailEl = document.getElementById('email')
+            const indateEl = document.getElementById('indate')
 
             // foreach는 출력안됨 -> Array.from()
-            Array.from(tds).forEach( (td, i) => {
-                if(td.tagName !== "TD") return
-                console.log(td)
+            Array.from(tds).forEach((td, i) => {
+                if (td.tagName !== "TD") return
+                //console.log(td)
                 switch (i) {
                     case 0: useridEl.value   = td.innerHTML; break;
                     case 1: usernameEl.value = td.innerHTML; break;
                     case 2: emailEl.value    = td.innerHTML; break;
                     case 3: indateEl.value   = td.innerHTML; break;
 
-                    //case 1: passwdEl.value   = td.innerHTML; break;
+                    //case 1: passwdEl.value = td.innerHTML; break;
                 }
             })
 
         })
 
-        // 추가버튼 클릭 : a tag를 버튼으로 사용하려면 기본ㄹ]]]ㅣ
+        // 추가버튼 클릭 : a tag를 버튼으로 사용하려면 기본이벤트( href 롤 이동)를 무력화하고 사용해야한다
         const btnInsertEl = document.getElementById('btnInsert')
-        btnInsertEl.addEventListener('click', async function(event) {
+        btnInsertEl.addEventListener('click', async function (event) {
             event.preventDefault()  // 기본이벤트 제거
             event.stopPropagation() // 이벤트더블링
+
             try {
                 await data_insert()
             } catch (err) {
                 console.log(err)
+                setMessage("추가실패", "error")
                 alert("오류발생")
             }
         })
 
         // 수정버튼 클릭
         const btnUpdateEl = document.getElementById('btnUpdate')
-        btnUpdateEl.addEventListener('click', async function() {
-            alert('수정')
+        btnUpdateEl.addEventListener('click', async function (e) {
+            e.preventDefault()
+            e.stopPropagation()
+
+            try {
+                await data_update()
+            } catch (err) {
+                console.log(err)
+                setMessage("수정실패", "error")
+                alert("오류발생")
+            }
         })
 
         // 삭제버튼 클릭
-        const useridEl   = document.getElementById('userid')
         const btnDeleteEl = document.getElementById('btnDelete')
-        btnDeleteEl.addEventListener('click', async function(e) {
+        btnDeleteEl.addEventListener('click', async function (e) {
             e.preventDefault()
             e.stopPropagation()
+
+            const useridEl = document.getElementById('userid')
             if (useridEl.value == '') return
             let yes = confirm(useridEl.value + "를 삭제시겠습니까?")
             if (!yes || useridEl.value == "admin") return;
 
-            try{
+            try {
                 await data_delete(useridEl.value)
             } catch (err) {
                 console.log(err)
+                setMessage("삭제실패", "error")
                 alert("오류발생")
             }
         })
 
         // 삭제버튼(휴지통) 클릭 / 실행시 생성된 버튼 document.querySelector('.btnDel') -> null
         // const btnDelEl = document.querySelector('.btnDel')
-        div1El.addEventListener('click', async function(e){
+        div1El.addEventListener('click', async function (e) {
             e.preventDefault()
             e.stopPropagation()
 
+            // tag의 class 접근할때 classList 사용
+            if (e.target.classList.contains('btndel') != true) return
+
             //el.closest('tr') : el의 가장 가까운 부모 tag
-            console.log(e.target.closest('tr'))
+            //console.log(e.target.closest('tr'))
             const tr = e.target.closest('tr')
             const userid = tr.dataset.userid
+            console.log(e.target)
 
             let yes = confirm(userid + "를 삭제시겠습니까?")
             if (!yes || userid == "admin") return
 
-            try{
+            try {
                 await data_delete(userid)
             } catch (err) {
                 console.log(err)
+                setMessage("삭제실패", "error")
                 alert("오류발생")
             }
         })
+    } // window.onload 끝 ----------------------------------------------------------------------
 
         // clear 버튼 클릭
         const btnClearEl = document.getElementById('btnClear')
@@ -328,7 +371,48 @@
             text_clear()
         })
 
-    }
+        // fromToUser()
+        function fromToUser() {
+            let user = {
+                userid  : document.getElementById('userid').value,
+                passwd  : document.getElementById('passwd').value,
+                username: document.getElementById('username').value,
+                email   : document.getElementById('email').value
+            }
+            return user
+        }
+
+        // validateInputForm(body)
+        function validateInputForm(body) {
+            if( !body.userid )
+                throw new Error("아이디를 입력 하세요")
+            if( !body.passwd )
+                throw new Error("암호를 입력하세요")
+            if( !body.username )
+                throw new Error("이름을 입력 하세요")
+            const emailRegex = /^[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*\.[a-zA-Z]{2,3}$/i;
+            if( !emailRegex.test(body.email) )
+                throw new Error("이메일 형식이 틀립니다")
+        }
+
+        // validateUpdateForm(userid, body)
+        function validateUpdateForm(userid, body) {
+            if( !userid )
+                throw new Error("수정할 아이디를 입력 하세요")
+            if( !body.username )
+                throw new Error("이름을 입력 하세요")
+            const emailRegex = /^[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*\.[a-zA-Z]{2,3}$/i;
+            if( !emailRegex.test(body.email) )
+                throw new Error("이메일 형식이 틀립니다")
+        }
+
+        // setMessage(): 메시지 출력함수
+        function setMessage(message, type="success") {
+            const messageEl = document.querySelector("#message")
+            messageEl.className = `message ${type}`
+            messageEl.textContent = message
+        }
+
 </script>
 </body>
 </html>
