@@ -11,4 +11,5 @@ public interface UserRepository extends JpaRepository<UserEntity, String> {
     List<UserEntity> findAllByOrderByIndateAsc();
 
     List<UserEntity> findByUseridContainingIgnoreCaseOrderByIndateAsc(String trim);
+
 }

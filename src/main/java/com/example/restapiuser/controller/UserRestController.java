@@ -1,5 +1,6 @@
 package com.example.restapiuser.controller;
 
+import com.example.restapiuser.dto.DeleteResponse;
 import com.example.restapiuser.dto.UserCreateRequest;
 import com.example.restapiuser.dto.UserResponse;
 import com.example.restapiuser.service.UserService;
@@ -14,13 +15,15 @@ import java.net.URI;
 import java.util.List;
 
 @RestController  // @Controller + ResponseBody
-@CrossOrigin(origins = "http://localhost:63342") // 8080 접근허용
+@CrossOrigin(
+        origins = "http://localhost:63342",
+        methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE, RequestMethod.OPTIONS}
+) // 8080 접근허용
 @RequestMapping("/api/users")
 public class UserRestController {
 
     private final UserService userService;
     private final HandlerMapping resourceHandlerMapping;
-
     public UserRestController(UserService userService, @Nullable HandlerMapping resourceHandlerMapping) {
         this.userService = userService;
         this.resourceHandlerMapping = resourceHandlerMapping;
@@ -49,6 +52,13 @@ public class UserRestController {
         // 201 : insert 성공
         // .created(location) : 생략가능
         // .body(response) : 생성된 사용자 정보를 json으로 응답
+    }
+
+    // DELETE http://localhost:8080/api/users/test01 - 회원삭제
+    @DeleteMapping("/{userid}")
+    public DeleteResponse delete(@PathVariable String userid) {
+        userService.deleteuser(userid);
+        return new DeleteResponse(userid, true);
     }
 
 }

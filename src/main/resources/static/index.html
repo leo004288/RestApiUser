@@ -123,7 +123,7 @@
                 const indate   = user.indate
 
                 let tr = `
-                    <tr>
+                    <tr data-userid="${userid}">
                         <td>${userid}</td>
                         <td>${username}</td>
                         <td>${email}</td>
@@ -139,8 +139,9 @@
         const div1El = document.getElementById('div1')
         div1El.innerHTML = html
     }
+    // #div1 table ui 끝 --------------------------------------------------------------
 
-    //
+    // text_clear
     function text_clear() {
         const useridEl   = document.getElementById('userid')
         const passwdEl   = document.getElementById('passwd')
@@ -157,7 +158,7 @@
         useridEl.focus()
     }
 
-    //
+    // data_insert
     async function data_insert() {
         const options = {
             method: 'POST',
@@ -173,10 +174,17 @@
     }
     await requestJson(API_URL, options)
     text_clear()
-    await getUsers()
+    await getUsers()  // data전체 조회
     }
 
-    // #div1 table ui 끝 --------------------------------------------------------------
+    // data_delete
+    async function data_delete(userid) {
+        await requestJson(`${API_URL}/${userid}`, {
+            method: 'DELETE'
+        })
+        text_clear()
+        await getUsers()
+    }
 
     // data 조회
     // GET http://localhost:8080/api/users?keyword=user
@@ -258,8 +266,8 @@
         // 추가버튼 클릭 : a tag를 버튼으로 사용하려면 기본ㄹ]]]ㅣ
         const btnInsertEl = document.getElementById('btnInsert')
         btnInsertEl.addEventListener('click', async function(event) {
-            event.preventDefault()
-            event.stopPropagation()
+            event.preventDefault()  // 기본이벤트 제거
+            event.stopPropagation() // 이벤트더블링
             try {
                 await data_insert()
             } catch (err) {
@@ -275,9 +283,43 @@
         })
 
         // 삭제버튼 클릭
+        const useridEl   = document.getElementById('userid')
         const btnDeleteEl = document.getElementById('btnDelete')
-        btnDeleteEl.addEventListener('click', async function() {
-            alert('삭제')
+        btnDeleteEl.addEventListener('click', async function(e) {
+            e.preventDefault()
+            e.stopPropagation()
+            if (useridEl.value == '') return
+            let yes = confirm(useridEl.value + "를 삭제시겠습니까?")
+            if (!yes || useridEl.value == "admin") return;
+
+            try{
+                await data_delete(useridEl.value)
+            } catch (err) {
+                console.log(err)
+                alert("오류발생")
+            }
+        })
+
+        // 삭제버튼(휴지통) 클릭 / 실행시 생성된 버튼 document.querySelector('.btnDel') -> null
+        // const btnDelEl = document.querySelector('.btnDel')
+        div1El.addEventListener('click', async function(e){
+            e.preventDefault()
+            e.stopPropagation()
+
+            //el.closest('tr') : el의 가장 가까운 부모 tag
+            console.log(e.target.closest('tr'))
+            const tr = e.target.closest('tr')
+            const userid = tr.dataset.userid
+
+            let yes = confirm(userid + "를 삭제시겠습니까?")
+            if (!yes || userid == "admin") return
+
+            try{
+                await data_delete(userid)
+            } catch (err) {
+                console.log(err)
+                alert("오류발생")
+            }
         })
 
         // clear 버튼 클릭
